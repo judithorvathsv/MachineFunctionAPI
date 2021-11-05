@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using MachineFunctionAPI.Model;
 using Microsoft.Azure.Cosmos.Table;
 using System.Linq;
+using Microsoft.Azure.Cosmos.Table.Queryable;
 
 namespace MachineFunctionAPI
 {
@@ -60,27 +61,54 @@ namespace MachineFunctionAPI
 
 
 
+        //[FunctionName("Put")]
+        //public static async Task<IActionResult> Put(
+        //[HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "machine/{id}")] HttpRequest req, ILogger log,
+        //[Table("machineitems", Connection = "AzureWebJobsStorage")] CloudTable machineTable, string id)
+        //{
+        //    log.LogInformation("Update item.");
+
+        //    string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        //    var updateMachine = JsonConvert.DeserializeObject<Machine>(requestBody);
+
+        //    if (updateMachine is null || updateMachine.Id != id)
+        //    {
+        //        return new BadRequestResult();
+        //    }
+
+        //    var itemTable = updateMachine.ToTableEntity();
+
+        //    itemTable.ETag = "*";
+
+        //    var operation = TableOperation.Replace(itemTable);   
+        //    await machineTable.ExecuteAsync(operation);
+
+        //    return new NoContentResult();
+        //}
+
+
+
         [FunctionName("Put")]
         public static async Task<IActionResult> Put(
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "machine/{id}")] HttpRequest req, ILogger log,
-        [Table("machineitems", Connection = "AzureWebJobsStorage")] CloudTable machineTable, string id)
+        [Table("machineitems", Connection = "AzureWebJobsStorage")] CloudTable machineTable, string id,
+        [Queue("machinequeue", Connection = "AzureWebJobsStorage")] IAsyncCollector<Machine> queueItem)
         {
-            log.LogInformation("Update item.");
-
+            log.LogInformation("Update item started...");
+     
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var updateMachine = JsonConvert.DeserializeObject<Machine>(requestBody);
 
-            if (updateMachine is null || updateMachine.Id != id)
-            {
-                return new BadRequestResult();
-            }
+            if (updateMachine is null || updateMachine.Id != id) return new BadRequestResult();
+
+            await queueItem.AddAsync(updateMachine);
 
             var itemTable = updateMachine.ToTableEntity();
-
             itemTable.ETag = "*";
-
-            var operation = TableOperation.Replace(itemTable);   
+            var operation = TableOperation.Replace(itemTable);
             await machineTable.ExecuteAsync(operation);
+            
+
 
             return new NoContentResult();
         }
@@ -90,10 +118,8 @@ namespace MachineFunctionAPI
         [FunctionName("Delete")]
         public static async Task<IActionResult> Delete(
         [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "machine/{id}")] HttpRequest req, ILogger log,
-        [Table("machineitems",/* "MachinePartitionKey"*/ "MachineTodo", "{id}", Connection = "AzureWebJobsStorage")] ItemTableEntity itemToRemove,
-        [Table("machineitems", Connection = "AzureWebJobsStorage")] CloudTable machineTable, string id
-        )
-
+        [Table("machineitems", "MachineTodo" /* <-from Azure storage explorer*/, "{id}", Connection = "AzureWebJobsStorage")] ItemTableEntity itemToRemove,
+        [Table("machineitems", Connection = "AzureWebJobsStorage")] CloudTable machineTable, string id)
         {
             log.LogInformation("Delete item.");
 
