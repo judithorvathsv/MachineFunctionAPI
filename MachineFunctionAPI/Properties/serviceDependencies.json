@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "appInsights1": {
+      "type": "appInsights",
+      "connectionId": "APPINSIGHTS_CONNECTIONSTRING"
+    },
+    "storage2": {
+      "type": "storage",
+      "connectionId": "funcapicon"
+    },
+    "storage3": {
+      "type": "storage",
+      "connectionId": "funcapi"
+    },
+    "storage4": {
+      "type": "storage",
+      "connectionId": "funcapi"
+    },
+    "storage5": {
+      "type": "storage",
+      "connectionId": "AzureWebJobStorage"
+    },
+    "storage1": {
+      "type": "storage",
+      "connectionId": "AzureWebJobsStorage"
+    }
+  }
+}
