@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using MachineFunctionAPI.Model;
+using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
@@ -18,14 +19,16 @@ namespace MachineFunctionAPI
 
 
         [FunctionName("QueueListener")]
-        public static async Task Run([QueueTrigger("machineItem", Connection = "AzureWebJobsStorage")] Machine todo,  
-        [Blob("machineItem", Connection = "AzureWebJobsStorage")] CloudBlobContainer container,
-        TraceWriter log)
+        public static async Task Run([QueueTrigger("machinequeue", Connection = "AzureWebJobsStorage")] Machine todo,  
+        [Blob("blobstorage", Connection = "AzureWebJobsStorage")] CloudBlobContainer container,
+        ILogger log)
         {
+
             await container.CreateIfNotExistsAsync();
             var blob = container.GetBlockBlobReference($"{todo.Id}.txt");
-            await blob.UploadTextAsync($"Created a new task: {todo.SentData}");
-            log.Info($"Queue trigger function processed: {todo.SentData}");
+            var lastmodified = blob.Properties.LastModified;
+            await blob.UploadTextAsync($"Created a new task: {todo.SentData}, for {todo.Id} machine");
+            log.LogInformation($"Queue trigger function processed: {todo.SentData}");
         }
     }
 }

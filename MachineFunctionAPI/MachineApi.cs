@@ -16,7 +16,8 @@ namespace MachineFunctionAPI
 {
     public static class MachineApi
     {
-        [FunctionName("Create")]
+       //[FunctionName("Create")]
+        [FunctionName("Add")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "machine")] HttpRequest req, ILogger log, 
             [Table("machineitems", Connection = "AzureWebJobsStorage")] IAsyncCollector<ItemTableEntity>machineTable)
@@ -34,7 +35,7 @@ namespace MachineFunctionAPI
             var item = new Machine
             {
                 Name = createMachine.Name,
-                Status = false,
+                Status = createMachine.Status,
                 SentData = createMachine.SentData
             };
 
@@ -107,8 +108,6 @@ namespace MachineFunctionAPI
             itemTable.ETag = "*";
             var operation = TableOperation.Replace(itemTable);
             await machineTable.ExecuteAsync(operation);
-            
-
 
             return new NoContentResult();
         }
