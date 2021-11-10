@@ -25,6 +25,7 @@ steps:
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)'
+    #targetPath: '$(Build.ArtifactStagingDirectory)'
+    targetPath: '$(home/vsts/work/1/s/ManagementSystem/bin/Release/)'
     artifactName: 'DevOpsDemoWeb'
  
