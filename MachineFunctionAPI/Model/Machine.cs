@@ -12,9 +12,10 @@ namespace MachineFunctionAPI.Model {
     public bool Status { get; set; }
 
     public string SentData { get; set; }
+        //public int Test { get; set; }
 
 
-    public Machine()
+        public Machine()
     {
         Id = Guid.NewGuid().ToString("n");
     }
