@@ -19,7 +19,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: publish
-    projects: '**/*API.csproj'
+    projects: '**/*WebAPI.csproj'
     publishWebProjects: False
     #publishWebProjects: True
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
